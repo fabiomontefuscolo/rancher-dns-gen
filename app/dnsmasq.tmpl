@@ -1,0 +1,33 @@
+{{ define "record" }}
+    {{- $domain_suffix := or (env "DOMAIN_SUFFIX") ".rad" -}}
+
+    {{- if (and .Address (eq .State "running")) -}}
+        {{- if .Service -}}
+            address=/{{ .Service }}.{{ .Stack }}{{ $domain_suffix }}/{{ .Address }}
+            {{- "\n" -}}
+            address=/{{ .Service }}.{{ .Stack }}.{{ .Host.Name }}{{ $domain_suffix }}/{{ .Address }}
+        {{- else -}}
+            address=/{{ .Name }}.{{ "standalone" }}{{ $domain_suffix }}/{{ .Address }}
+            {{- "\n" -}}
+            address=/{{ .Name }}.{{ "standalone" }}.{{ .Host.Name }}{{ $domain_suffix }}/{{ .Address }}
+        {{- end -}}
+        {{- "\n" -}}
+    {{- end -}}
+{{ end -}}
+
+{{/* Dirty hack to get self */}}
+{{ $self := first (service.Containers | whereLabelEquals "io.rancher.container.mac_address" (env "MAC_ADDRESS")) }}
+
+# host {{ $self.Host.Name }}
+{{ range $container := host.Containers -}}
+    {{ template "record" $container }}
+{{- end }}
+
+{{ range $host := hosts -}}
+    {{- if ne $self.Host.Name $host.Name -}}
+        # host {{ $host.Name }}{{ "\n" -}}
+        {{ range $container := $host.Containers -}}
+            {{- template "record" $container -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
