@@ -18,9 +18,13 @@
 {{/* Dirty hack to get self */}}
 {{ $self := first (service.Containers | whereLabelEquals "io.rancher.container.mac_address" (env "MAC_ADDRESS")) }}
 
-# host {{ $self.Host.Name }}
-{{ range $container := host.Containers -}}
-    {{ template "record" $container }}
+{{- range $host := hosts -}}
+    {{- if eq $self.Host.Name $host.Name -}}
+        # host {{ $host.Name }}{{ "\n" -}}
+        {{ range $container := $host.Containers -}}
+            {{- template "record" $container -}}
+        {{- end -}}
+    {{- end -}}
 {{- end }}
 
 {{ range $host := hosts -}}
