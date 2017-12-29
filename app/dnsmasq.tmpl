@@ -1,7 +1,7 @@
 {{ define "record" }}
     {{- $domain_suffix := or (env "DOMAIN_SUFFIX") ".rad" -}}
 
-    {{- if (and .Address (eq .State "running")) -}}
+    {{- if (and .Address (eq .State "running") (or (eq .Health "")  (eq .Health "healthy"))) -}}
         {{- if .Service -}}
             address=/{{ .Service }}.{{ .Stack }}{{ $domain_suffix }}/{{ .Address }}
             {{- "\n" -}}
