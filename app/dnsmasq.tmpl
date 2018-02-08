@@ -1,5 +1,5 @@
 {{ define "record" }}
-    {{- $domain_suffix := or (env "DOMAIN_SUFFIX") ".rad" -}}
+    {{- $domain_suffix := or (env "DOMAIN_SUFFIX") ".rancher.internal" -}}
 
     {{- if (and .Address (eq .State "running") (or (eq .Health "")  (eq .Health "healthy"))) -}}
         {{- if .Service -}}
